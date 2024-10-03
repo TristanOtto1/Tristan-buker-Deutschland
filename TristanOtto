@@ -1,0 +1,408 @@
+import random
+#########################################################################
+# Galgje
+# Philip Lafeber
+# Neemt lijst woorden, kiest een woord, vraagt een letter, houdt bij welke
+# letters gekozen zijn en geeft het woord weer met de geraden letters.
+#########################################################################
+doorgaan = True
+gekozen_letters = []
+woordenlijst = ['examenstress','proefwerk','spiekbriefje' ]
+woord = ''
+woord_geraden = False
+galgje = []
+onderdelen = ['benen','buik','hoofd','galg']
+
+#########################################################################
+# Kies woord
+# Vult 'woord' met een woord uit de woordenlijst
+#########################################################################
+def kies_woord():
+  global woord
+  woord = random.choice(woordenlijst)
+
+#########################################################################
+# Toon galg
+# Toont de galg.
+#########################################################################
+def toon_galg():
+  print(galgje)
+  #########################################################################
+# Toon woord
+# Toont het woord op het scherm met alleen die letters die al geraden zijn.
+#########################################################################
+def toon_woord():
+  global woord
+  te_tonen_woord = ''
+  for letter in woord:
+    if letter in gekozen_letters:
+      te_tonen_woord = te_tonen_woord + letter
+    else:
+      te_tonen_woord = te_tonen_woord + '_'
+  print('Woord: ' + te_tonen_woord)
+    
+#########################################################################
+# Verwerk gekozen letter
+# Zet de gekozen letter in de lijst gekozen_letters
+# Als het fout is; voegt één onderdeel aan de galg toe
+# Checkt of het woord nu volledig geraden is
+#########################################################################
+def verwerk_gekozen_letter(letter):
+  global woord_geraden
+  global galgje
+  print(letter)
+  gekozen_letters.append(letter)
+  if not letter in woord:
+    galgje.append(onderdelen.pop())
+  print(gekozen_letters)
+  woord_niet_geraden = False
+  for woordletter in woord:
+    if not woordletter in gekozen_letters:
+      woord_niet_geraden = True
+  if (woord_niet_geraden == False):
+    woord_geraden = True  
+   
+#########################################################################
+# Hoofdprogramma
+# Een cyclus van invoer van een gekozen letter tot de stopconditie
+# is bereikt
+#########################################################################
+print('Welkom bij Galgje.')
+kies_woord()
+toon_woord()
+while (doorgaan == True) :
+  goede_letter = False
+  while not goede_letter:
+    letter = input('Kies een letter: ')
+    if len(letter) == 1 and not letter in gekozen_letters:
+      verwerk_gekozen_letter(letter)
+    toon_woord()
+    toon_galg()
+  if woord_geraden:
+    print('Gefeliciteerd! Je hebt het wooord "'+ woord +'" geraden.')
+    doorgaan = False
+  if not onderdelen:
+    print('Helaas! Je hebt het wooord "'+ woord +'" niet geraden.')
+    doorgaan = False
+Hier ist der vollständige Quellcode für ein einfaches 2D-Shooter-Spiel mit Pygame, das Rap-Musik im Hintergrund abspielt. Stelle sicher, dass du eine MP3- oder WAV-Datei mit dem Namen rap_music.mp3 im gleichen Verzeichnis wie das Skript hast oder passe den Dateinamen im Code entsprechend an.
+
+Vollständiger Quellcode
+
+import pygame
+import random
+
+# Initialisiere Pygame
+pygame.init()
+
+# Bildschirmabmessungen
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("2D Shooter Game")
+
+# Farben
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# Spielgeschwindigkeit
+clock = pygame.time.Clock()
+
+# Lade und spiele Musik
+pygame.mixer.music.load("rap_music.mp3")  # Ersetze durch den Dateinamen deiner Musikdatei
+pygame.mixer.music.play(-1)  # -1 spielt die Musik in einer Endlosschleife
+
+# Spielerklasse
+class Player(pygame.sprite.Sprite):
+    def __init__(self, color, x, y):
+        super().__init__()
+        self.image = pygame.Surface((50, 50))
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 5
+
+    def move(self, dx, dy):
+        self.rect.x += dx
+        self.rect.y += dy
+
+    def shoot(self):
+        bullet = Bullet(self.rect.centerx, self.rect.top)
+        all_sprites.add(bullet)
+        bullets.add(bullet)
+
+# Kugelklasse
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((10, 20))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = -10
+
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.bottom < 0:
+            self.kill()
+
+# Setup der Spieler
+player1 = Player(BLUE, 100, HEIGHT - 60)
+player2 = Player(RED, WIDTH - 150, HEIGHT - 60)
+
+all_sprites = pygame.sprite.Group()
+bullets = pygame.sprite.Group()
+
+all_sprites.add(player1)
+all_sprites.add(player2)
+
+# Hauptspielschleife
+running = True
+while running:
+    clock.tick(60)  # 60 FPS
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Spielerbewegung
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_a]:
+        player1.move(-player1.speed, 0)  # Spieler 1 nach links
+    if keys[pygame.K_d]:
+        player1.move(player1.speed, 0)  # Spieler 1 nach rechts
+    if keys[pygame.K_LEFT]:
+        player2.move(-player2.speed, 0)  # Spieler 2 nach links
+    if keys[pygame.K_RIGHT]:
+        player2.move(player2.speed, 0)  # Spieler 2 nach rechts
+
+    # Spieler schießen
+    if keys[pygame.K_w]:
+        player1.shoot()
+    if keys[pygame.K_UP]:
+        player2.shoot()
+
+    # Aktualisiere die Kugeln
+    bullets.update()
+
+    # Zeichne alles neu
+    screen.fill(WHITE)
+    all_sprites.draw(screen)
+    bullets.draw(screen)
+
+    pygame.display.flip()
+
+# Beende Pygame
+pygame.quit()
+
+Anleitung zur Verwendung
+
+1. Installiere Python: Stelle sicher, dass du Python auf deinem Computer installiert hast. Du kannst es von python.org herunterladen.
+
+
+2. Installiere Pygame: Öffne die Eingabeaufforderung (Windows) oder das Terminal (Mac/Linux) und installiere Pygame mit dem folgenden Befehl:
+
+pip install pygame
+
+
+3. Musikdatei: Lade eine Rap-Musikdatei (z.B. rap_music.mp3) herunter und lege sie im gleichen Verzeichnis wie das Python-Skript ab.
+
+
+4. Speichere den Code: Kopiere den obigen Code in einen Texteditor oder eine IDE und speichere ihn als shooter_game.py.
+
+
+5. Führe das Spiel aus: Navigiere im Terminal oder in der Eingabeaufforderung zu dem Verzeichnis, in dem die Datei gespeichert ist, und führe den Befehl aus:
+
+python shooter_game.py
+
+
+
+Steuerelemente im Spiel
+
+Spieler 1 (Blauer Spieler):
+
+A: Nach links bewegen
+
+D: Nach rechts bewegen
+
+W: Schießen
+
+
+Spieler 2 (Roter Spieler):
+
+Pfeil nach links: Nach links bewegen
+
+Pfeil nach rechts: Nach rechts bewegen
+
+Pfeil nach oben: Schießen
+
+
+
+Anmerkung
+
+Dieser Code ist ein einfaches Beispiel, das leicht erweitert werden kann. Du kannst neue Features hinzufügen, wie Punkte, Gegner oder verschiedene Levels, um das Spiel interessanter zu gestalten. Wenn du Fragen hast oder Hilfe bei Anpassungen benötigst, lass es mich wissen!
+
+Um ein einfaches 2D-Kriegsspiel in Pygame zu erstellen, in dem zwei Charaktere in den USA agieren, die laufen, springen, schießen und Kanonenschläge werfen können, können wir den Code entsprechend anpassen. Ich werde eine grundlegende Struktur bereitstellen, die diese Funktionen umsetzt.
+
+Hier ist der Quellcode für ein solches Spiel:
+
+Quellcode für ein 2D-Kriegsspiel
+
+import pygame
+import random
+
+# Initialisiere Pygame
+pygame.init()
+
+# Bildschirmabmessungen
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("2D War Game - Urheberrecht: Tristan Otto")
+
+# Farben
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# Spielgeschwindigkeit
+clock = pygame.time.Clock()
+gravity = 1
+jump_power = 15
+
+# Musik und Sounds laden
+pygame.mixer.music.load("rap_music.mp3")  # Ersetze durch den Dateinamen deiner Musikdatei
+pygame.mixer.music.play(-1)  # Musik in einer Endlosschleife abspielen
+shoot_sound = pygame.mixer.Sound("shoot.wav")  # Ersetze durch den Dateinamen deiner Schussgeräuschdatei
+explosion_sound = pygame.mixer.Sound("explosion.wav")  # Ersetze durch den Dateinamen deiner Explosionsgeräuschdatei
+
+# Spielerklasse
+class Player(pygame.sprite.Sprite):
+    def __init__(self, color, x, y):
+        super().__init__()
+        self.image = pygame.Surface((50, 50))
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 5
+        self.jump = False
+        self.velocity_y = 0
+
+    def move(self, dx, dy):
+        self.rect.x += dx
+        self.rect.y += dy
+
+    def jump(self):
+        if not self.jump:
+            self.velocity_y = -jump_power
+            self.jump = True
+
+    def update(self):
+        # Schwerkraft anwenden
+        self.velocity_y += gravity
+        self.rect.y += self.velocity_y
+
+        # Wenn der Spieler den Boden berührt
+        if self.rect.y >= HEIGHT - 50:
+            self.rect.y = HEIGHT - 50
+            self.jump = False
+            self.velocity_y = 0
+
+    def shoot(self):
+        bullet = Bullet(self.rect.centerx, self.rect.top)
+        all_sprites.add(bullet)
+        bullets.add(bullet)
+        shoot_sound.play()
+
+# Kugelklasse
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((10, 20))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = -10
+
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.bottom < 0:
+            self.kill()
+
+# Kanonenschlagklasse
+class Cannonball(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((20, 20))
+        self.image.fill((0, 255, 0))  # Kanonenschläge grün
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = -5
+
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.bottom < 0:
+            self.kill()
+
+# Setup der Spieler
+player1 = Player(BLUE, 100, HEIGHT - 60)
+player2 = Player(RED, WIDTH - 150, HEIGHT - 60)
+
+all_sprites = pygame.sprite.Group()
+bullets = pygame.sprite.Group()
+cannonballs = pygame.sprite.Group()
+
+all_sprites.add(player1)
+all_sprites.add(player2)
+
+# Hauptspielschleife
+running = True
+while running:
+    clock.tick(60)  # 60 FPS
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Spielerbewegung
+    keys = pygame.key.get_pressed()
+
+    # Spieler 1 (blau)
+    if keys[pygame.K_a]:
+        player1.move(-player1.speed, 0)  # Spieler 1 nach links
+    if keys[pygame.K_d]:
+        player1.move(player1.speed, 0)  # Spieler 1 nach rechts
+    if keys[pygame.K_w]:
+        player1.jump()  # Spieler 1 springen
+    if keys[pygame.K_s]:
+        player1.shoot()  # Spieler 1 schießen
+
+    # Spieler 2 (rot)
+    if keys[pygame.K_LEFT]:
+        player2.move(-player2.speed, 0)  # Spieler 2 nach links
+    if keys[pygame.K_RIGHT]:
+        player2.move(player2.speed, 0)  # Spieler 2 nach rechts
+    if keys[pygame.K_UP]:
+        player2.jump()  # Spieler 2 springen
+    if keys[pygame.K_DOWN]:
+        player2.shoot()  # Spieler 2 schießen
+
+    # Aktualisiere die Spieler und Kugeln
+    all_sprites.update()
+    bullets.update()
+    cannonballs.update()
+
+    # Zeichne alles neu
+    screen.fill(WHITE)
+    all_sprites.draw(screen)
+    bullets.draw(screen)
+    cannonballs.draw(screen)
+
+    pygame.display.flip()
+
+# Beende Pygame
+pygame
+
